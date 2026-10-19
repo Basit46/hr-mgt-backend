@@ -8,7 +8,7 @@ export function buildResetCodeEmail(
   firstName: string,
   code: string,
 ): ResetCodeEmail {
-  const subject = `${code} is your Noemdek HR password reset code`;
+  const subject = `${code} is your Noemdek IT password reset code`;
 
   const html = `<!DOCTYPE html>
 <html lang="en">
@@ -24,7 +24,7 @@ export function buildResetCodeEmail(
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background-color:#ffffff;border-radius:14px;overflow:hidden;box-shadow:0 4px 16px rgba(15,23,42,0.08);">
             <tr>
               <td style="background-color:#0f172a;padding:24px 32px;">
-                <span style="color:#ffffff;font-size:18px;font-weight:600;letter-spacing:0.4px;">Noemdek HR</span>
+                <span style="color:#ffffff;font-size:18px;font-weight:600;letter-spacing:0.4px;">Noemdek IT</span>
               </td>
             </tr>
             <tr>
@@ -48,7 +48,7 @@ export function buildResetCodeEmail(
             <tr>
               <td style="background-color:#f8fafc;border-top:1px solid #e2e8f0;padding:16px 32px;">
                 <p style="margin:0;font-size:12px;line-height:18px;color:#94a3b8;">
-                  This is an automated message from Noemdek HR. Please do not reply.
+                  This is an automated message from Noemdek IT. Please do not reply.
                 </p>
               </td>
             </tr>
@@ -59,7 +59,7 @@ export function buildResetCodeEmail(
   </body>
 </html>`;
 
-  const text = `Hi ${firstName},\n\nYour Noemdek HR password reset code is ${code}.\nIt is valid for 15 minutes.\n\nIf you did not request a password reset, you can safely ignore this email and your password will stay unchanged.`;
+  const text = `Hi ${firstName},\n\nYour Noemdek IT password reset code is ${code}.\nIt is valid for 15 minutes.\n\nIf you did not request a password reset, you can safely ignore this email and your password will stay unchanged.`;
 
   return { subject, html, text };
 }

@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { EmployeesModule } from './employees/employees.module';
 import { UsersModule } from './users/users.module';
 import { MailModule } from './mail/mail.module';
+import { StorageModule } from './storage/storage.module';
 import { CommonModule } from './common/common.module';
 
 @Module({
@@ -17,6 +18,7 @@ import { CommonModule } from './common/common.module';
       process.env.MONGODB_URI ?? 'mongodb://127.0.0.1:27017/hr-mgt',
     ),
     MailModule,
+    StorageModule,
     CommonModule,
     UsersModule,
     AuthModule,
