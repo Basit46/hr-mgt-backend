@@ -19,13 +19,21 @@ import { RegisterDto } from '../users/dto/register.dto';
 import { UpdateUserDto } from '../users/dto/update-user.dto';
 import { UserDocument } from '../users/schemas/user.schema';
 import { UsersService } from '../users/users.service';
+import { PaginatedResult } from '../common/interfaces/api-response.interface';
+import {
+  AdminEmployeesService,
+  EmployeeSummary,
+} from './admin-employees.service';
 import { ResponseMessage } from '../common/decorators/response-message.decorator';
 
 @Controller('admin')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserType.ADMIN)
 export class AdminController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly adminEmployeesService: AdminEmployeesService,
+  ) {}
 
   @Get('stats')
   @ResponseMessage('Statistics retrieved successfully')
@@ -44,6 +52,32 @@ export class AdminController {
       );
     }
     return this.usersService.findAll(userType as UserType | undefined);
+  }
+
+  @Get('employees')
+  @ResponseMessage('Employees retrieved successfully')
+  findAllEmployees(
+    @Query('search') search?: string,
+    @Query('department') department?: string,
+    @Query('is_active') isActive?: string,
+    @Query('page') page?: string,
+    @Query('batch') batch?: string,
+    @Query('limit') limit?: string,
+  ): Promise<PaginatedResult<EmployeeSummary>> {
+    return this.adminEmployeesService.findAllEmployees(
+      search,
+      department,
+      this.parseIsActive(isActive),
+      page ?? batch,
+      limit,
+    );
+  }
+
+  private parseIsActive(value?: string): boolean | undefined {
+    if (value === undefined || value === '') return undefined;
+    if (value === 'true') return true;
+    if (value === 'false') return false;
+    throw new BadRequestException('is_active must be either true or false');
   }
 
   @Get('users/:id')

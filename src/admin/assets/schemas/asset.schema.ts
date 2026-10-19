@@ -9,7 +9,12 @@ export type AssetDocument = HydratedDocument<Asset>;
 
 @Schema({ _id: false })
 export class AssetAssignment {
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', required: true })
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+    index: true,
+  })
   employee!: Types.ObjectId;
 
   @Prop({ required: true })
