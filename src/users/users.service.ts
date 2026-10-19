@@ -11,6 +11,7 @@ import { User, UserDocument } from './schemas/user.schema';
 import { RegisterDto } from './dto/register.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { MailService } from '../mail/mail.service';
+import { definedEntries } from '../common/utils/assign.util';
 import { buildVerificationCodeEmail } from '../mail/templates/verification-code.template';
 import { buildResetCodeEmail } from '../mail/templates/reset-code.template';
 
@@ -187,10 +188,7 @@ export class UsersService {
     updateUserDto: UpdateUserDto,
   ): Promise<UserDocument> {
     const user = await this.findById(id);
-    const changes = Object.entries(updateUserDto).filter(
-      ([, value]) => value !== undefined,
-    );
-    Object.assign(user, Object.fromEntries(changes));
+    Object.assign(user, definedEntries(updateUserDto));
     return user.save();
   }
 

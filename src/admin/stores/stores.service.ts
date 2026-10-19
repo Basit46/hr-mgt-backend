@@ -8,6 +8,7 @@ import { Model, QueryFilter } from 'mongoose';
 import { StoreStatus } from '../../common/enums/store-status.enum';
 import { buildSearchRegex } from '../../common/utils/search.util';
 import { parsePagination } from '../../common/utils/pagination.util';
+import { definedEntries } from '../../common/utils/assign.util';
 import { PaginatedResult } from '../../common/interfaces/api-response.interface';
 import { Store, StoreDocument } from './schemas/store.schema';
 import { CreateStoreDto } from './dto/create-store.dto';
@@ -108,7 +109,7 @@ export class StoresService {
       }
     }
 
-    Object.assign(store, updateStoreDto);
+    Object.assign(store, definedEntries(updateStoreDto));
     return store.save();
   }
 

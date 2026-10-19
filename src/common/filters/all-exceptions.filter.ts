@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Logger,
 } from '@nestjs/common';
+import { Error as MongooseError } from 'mongoose';
 import type { Request, Response } from 'express';
 import { ApiErrorResponse } from '../interfaces/api-response.interface';
 
@@ -19,6 +20,16 @@ function isMongoDuplicateKeyError(error: unknown): boolean {
     typeof error === 'object' &&
     error !== null &&
     (error as MongoServerError).code === 11000
+  );
+}
+
+function extractValidationMessages(
+  exception: MongooseError.ValidationError,
+): string {
+  return (
+    Object.values(exception.errors)
+      .map((error) => error.message)
+      .join(', ') || 'Validation failed'
   );
 }
 
@@ -67,6 +78,12 @@ export class AllExceptionsFilter implements ExceptionFilter {
       message = field
         ? `Duplicate value for ${field}`
         : 'Resource already exists';
+    } else if (exception instanceof MongooseError.ValidationError) {
+      status = HttpStatus.BAD_REQUEST;
+      message = extractValidationMessages(exception);
+    } else if (exception instanceof MongooseError.DocumentNotFoundError) {
+      status = HttpStatus.NOT_FOUND;
+      message = 'Resource no longer exists';
     } else {
       this.logger.error(
         `Unhandled exception on ${request.method} ${request.url}`,

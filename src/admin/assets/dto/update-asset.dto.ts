@@ -1,48 +1,52 @@
 import {
   IsMongoId,
   IsNumber,
-  IsOptional,
   IsString,
+  Matches,
   MaxLength,
   Min,
+  ValidateIf,
 } from 'class-validator';
+import { IsProvided } from '../../../common/utils/validate.util';
 
 export class UpdateAssetDto {
-  @IsOptional()
+  @ValidateIf(IsProvided)
   @IsString()
+  @Matches(/\S/, { message: 'asset_name must not be blank' })
   @MaxLength(100)
   asset_name?: string;
 
-  @IsOptional()
+  @ValidateIf(IsProvided)
   @IsString()
+  @Matches(/\S/, { message: 'serial_no must not be blank' })
   @MaxLength(100)
   serial_no?: string;
 
-  @IsOptional()
+  @ValidateIf(IsProvided)
   @IsString()
   @MaxLength(100)
   generation?: string;
 
-  @IsOptional()
+  @ValidateIf(IsProvided)
   @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0)
   cost?: number;
 
-  @IsOptional()
+  @ValidateIf(IsProvided)
   @IsString()
   @MaxLength(500)
   image?: string;
 
-  @IsOptional()
+  @ValidateIf(IsProvided)
   @IsString()
   @MaxLength(500)
   description?: string;
 
-  @IsOptional()
+  @ValidateIf(IsProvided)
   @IsMongoId()
   store?: string;
 
-  @IsOptional()
+  @ValidateIf(IsProvided)
   @IsMongoId()
   category?: string;
 }

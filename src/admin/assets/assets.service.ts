@@ -10,6 +10,7 @@ import { AssetStatus } from '../../common/enums/asset-status.enum';
 import { AssetActivityType } from '../../common/enums/asset-activity-type.enum';
 import { buildSearchRegex } from '../../common/utils/search.util';
 import { parsePagination } from '../../common/utils/pagination.util';
+import { definedEntries } from '../../common/utils/assign.util';
 import { PaginatedResult } from '../../common/interfaces/api-response.interface';
 import { UsersService } from '../../users/users.service';
 import {
@@ -204,7 +205,7 @@ export class AssetsService {
       );
     }
 
-    Object.assign(asset, updateAssetDto);
+    Object.assign(asset, definedEntries(updateAssetDto));
     await asset.save();
     return asset.populate(ASSET_POPULATE);
   }

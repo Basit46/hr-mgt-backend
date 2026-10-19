@@ -8,6 +8,7 @@ import { Model, QueryFilter } from 'mongoose';
 import { CategoryStatus } from '../../common/enums/category-status.enum';
 import { buildSearchRegex } from '../../common/utils/search.util';
 import { parsePagination } from '../../common/utils/pagination.util';
+import { definedEntries } from '../../common/utils/assign.util';
 import { PaginatedResult } from '../../common/interfaces/api-response.interface';
 import { Category, CategoryDocument } from './schemas/category.schema';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -105,7 +106,7 @@ export class CategoriesService {
       }
     }
 
-    Object.assign(category, updateCategoryDto);
+    Object.assign(category, definedEntries(updateCategoryDto));
     return category.save();
   }
 
