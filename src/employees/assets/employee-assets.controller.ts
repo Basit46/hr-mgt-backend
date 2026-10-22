@@ -9,6 +9,7 @@ import { RolesGuard } from '../../auth/guards/roles.guard';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import type { AuthenticatedUser } from '../../auth/strategies/jwt.strategy';
 import { AssetDocument } from '../../admin/assets/schemas/asset.schema';
+import { AssetHistoryDocument } from '../../admin/history/schemas/asset-history.schema';
 import { EmployeeAssetsService } from './employee-assets.service';
 import { ReportIssueDto } from '../../admin/assets/dto/report-issue.dto';
 
@@ -41,6 +42,15 @@ export class EmployeeAssetsController {
     return this.employeeAssetsService.findAllForEmployeeWithoutPagination(
       currentUser.userId,
     );
+  }
+
+  @Get(':id/details')
+  @ResponseMessage('Asset details retrieved successfully')
+  async getDetails(
+    @Param('id', ParseObjectIdPipe) id: string,
+    @CurrentUser() currentUser: AuthenticatedUser,
+  ): Promise<{ asset: AssetDocument; history: AssetHistoryDocument[] }> {
+    return this.employeeAssetsService.getDetails(id, currentUser.userId);
   }
 
   @Post(':id/report-issue')
