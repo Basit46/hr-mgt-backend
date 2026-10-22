@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, QueryFilter, Types } from 'mongoose';
 import { AssetActivityType } from '../../common/enums/asset-activity-type.enum';
@@ -15,6 +15,13 @@ import {
 export interface RecordAssetActivityInput {
   asset: string;
   event_type: AssetActivityType;
+  quantity: number;
+  performed_by: string;
+}
+
+export interface AdminRecordActivityInput {
+  asset: string;
+  event_type: AssetActivityType.REPAIRED | AssetActivityType.RETURNED;
   quantity: number;
   performed_by: string;
 }
@@ -46,6 +53,20 @@ export class HistoryService {
   ) {}
 
   async record(input: RecordAssetActivityInput): Promise<AssetHistoryDocument> {
+    return this.historyModel.create({
+      asset: new Types.ObjectId(input.asset),
+      event_type: input.event_type,
+      quantity: input.quantity,
+      performed_by: new Types.ObjectId(input.performed_by),
+    });
+  }
+
+  async adminRecordActivity(input: AdminRecordActivityInput): Promise<AssetHistoryDocument> {
+    const allowedTypes = [AssetActivityType.REPAIRED, AssetActivityType.RETURNED];
+    if (!allowedTypes.includes(input.event_type)) {
+      throw new BadRequestException('Admin can only record repaired or returned activities');
+    }
+
     return this.historyModel.create({
       asset: new Types.ObjectId(input.asset),
       event_type: input.event_type,

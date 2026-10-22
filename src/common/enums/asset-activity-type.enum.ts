@@ -2,7 +2,7 @@ export enum AssetActivityType {
   ADDED = 'added',
   ASSIGNED = 'assigned',
   RETURNED = 'returned',
-  RESTOCKED = 'restocked',
+  REPAIRED = 'repaired',
   ISSUE_REPORTED = 'issue_reported',
   OTHERS = 'others',
 }
