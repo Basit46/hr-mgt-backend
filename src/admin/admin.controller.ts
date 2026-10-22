@@ -73,6 +73,20 @@ export class AdminController {
     );
   }
 
+  @Get('employees/all')
+  @ResponseMessage('All employees retrieved successfully')
+  findAllEmployeesNoPagination(
+    @Query('search') search?: string,
+    @Query('department') department?: string,
+    @Query('is_active') isActive?: string,
+  ): Promise<EmployeeSummary[]> {
+    return this.adminEmployeesService.findAllEmployeesNoPagination(
+      search,
+      department,
+      this.parseIsActive(isActive),
+    );
+  }
+
   private parseIsActive(value?: string): boolean | undefined {
     if (value === undefined || value === '') return undefined;
     if (value === 'true') return true;

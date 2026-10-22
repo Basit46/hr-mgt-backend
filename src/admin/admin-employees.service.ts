@@ -55,6 +55,21 @@ export class AdminEmployeesService {
     return { data: await this.withAssetCounts(employees), count };
   }
 
+  async findAllEmployeesNoPagination(
+    search?: string,
+    department?: string,
+    isActive?: boolean,
+  ): Promise<EmployeeSummary[]> {
+    const filter = this.buildFilter(search, department, isActive);
+
+    const employees = await this.userModel
+      .find(filter)
+      .sort({ createdAt: -1 })
+      .exec();
+
+    return this.withAssetCounts(employees);
+  }
+
   private buildFilter(
     search?: string,
     department?: string,
