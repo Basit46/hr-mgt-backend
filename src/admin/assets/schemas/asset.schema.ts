@@ -74,6 +74,16 @@ export class Asset {
   @Prop({ type: AssetAssignmentSchema })
   assignedTo?: AssetAssignment;
 
+  @Prop({ default: false, index: true })
+  has_issue!: boolean;
+
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    ref: 'AssetIssue',
+    index: true,
+  })
+  current_issue?: Types.ObjectId;
+
   createdAt: Date;
   updatedAt: Date;
 }

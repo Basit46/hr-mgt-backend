@@ -4,6 +4,8 @@ import { Model, QueryFilter } from 'mongoose';
 import { parsePagination } from '../../common/utils/pagination.util';
 import { PaginatedResult } from '../../common/interfaces/api-response.interface';
 import { Asset, AssetDocument } from '../../admin/assets/schemas/asset.schema';
+import { AssetIssueService } from '../../admin/assets/services/asset-issue.service';
+import { ReportIssueDto } from '../../admin/assets/dto/report-issue.dto';
 
 const EMPLOYEE_ASSET_POPULATE = [
   { path: 'store', select: 'name location state status' },
@@ -15,6 +17,7 @@ export class EmployeeAssetsService {
   constructor(
     @InjectModel(Asset.name)
     private readonly assetModel: Model<AssetDocument>,
+    private readonly assetIssueService: AssetIssueService,
   ) {}
 
   private buildFilter(employeeId: string): QueryFilter<AssetDocument> {
@@ -51,5 +54,21 @@ export class EmployeeAssetsService {
       .populate(EMPLOYEE_ASSET_POPULATE)
       .sort({ 'assignedTo.assignedAt': -1 })
       .exec();
+  }
+
+  async reportIssue(
+    assetId: string,
+    employeeId: string,
+    reportIssueDto: ReportIssueDto,
+  ): Promise<AssetDocument> {
+    await this.assetIssueService.createIssue(assetId, employeeId, reportIssueDto);
+    const asset = await this.assetModel
+      .findById(assetId)
+      .populate(EMPLOYEE_ASSET_POPULATE)
+      .exec();
+    if (!asset) {
+      throw new Error('Asset not found after issue creation');
+    }
+    return asset;
   }
 }

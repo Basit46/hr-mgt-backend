@@ -1,4 +1,5 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { ParseObjectIdPipe } from '../../common/pipes/parse-object-id.pipe';
 import { UserType } from '../../common/enums/user-type.enum';
 import { PaginatedResult } from '../../common/interfaces/api-response.interface';
 import { ResponseMessage } from '../../common/decorators/response-message.decorator';
@@ -9,6 +10,7 @@ import { Roles } from '../../auth/decorators/roles.decorator';
 import type { AuthenticatedUser } from '../../auth/strategies/jwt.strategy';
 import { AssetDocument } from '../../admin/assets/schemas/asset.schema';
 import { EmployeeAssetsService } from './employee-assets.service';
+import { ReportIssueDto } from '../../admin/assets/dto/report-issue.dto';
 
 @Controller('employees/assets')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -39,5 +41,15 @@ export class EmployeeAssetsController {
     return this.employeeAssetsService.findAllForEmployeeWithoutPagination(
       currentUser.userId,
     );
+  }
+
+  @Post(':id/report-issue')
+  @ResponseMessage('Issue reported successfully')
+  async reportIssue(
+    @Param('id', ParseObjectIdPipe) id: string,
+    @CurrentUser() currentUser: AuthenticatedUser,
+    @Body() reportIssueDto: ReportIssueDto,
+  ): Promise<AssetDocument> {
+    return this.employeeAssetsService.reportIssue(id, currentUser.userId, reportIssueDto);
   }
 }

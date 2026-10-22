@@ -24,15 +24,21 @@ import type { AuthenticatedUser } from '../../auth/strategies/jwt.strategy';
 import { RolesGuard } from '../../auth/guards/roles.guard';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { AssetsService } from './assets.service';
+import { AssetIssueService } from './services/asset-issue.service';
 import { AssetDocument } from './schemas/asset.schema';
+import { AssetIssueDocument } from './schemas/asset-issue.schema';
 import { CreateAssetDto } from './dto/create-asset.dto';
 import { UpdateAssetDto } from './dto/update-asset.dto';
 import { AssignAssetDto } from './dto/assign-asset.dto';
+import { ResolveIssueDto } from './dto/resolve-issue.dto';
 
 @Controller('admin/assets')
 @UseGuards(JwtAuthGuard)
 export class AssetsController {
-  constructor(private readonly assetsService: AssetsService) {}
+  constructor(
+    private readonly assetsService: AssetsService,
+    private readonly assetIssueService: AssetIssueService,
+  ) {}
 
   @Post()
   @UseGuards(RolesGuard)
@@ -130,5 +136,72 @@ export class AssetsController {
   @ResponseMessage('Asset deleted successfully')
   remove(@Param('id', ParseObjectIdPipe) id: string): Promise<void> {
     return this.assetsService.remove(id);
+  }
+
+  @Get('issues')
+  @UseGuards(RolesGuard)
+  @Roles(UserType.ADMIN)
+  @ResponseMessage('Issues retrieved successfully')
+  async findAllIssues(
+    @Query('asset', ParseObjectIdPipe) asset?: string,
+    @Query('is_resolved') isResolved?: string,
+    @Query('issue_type') issueType?: string,
+    @Query('start_date') startDate?: string,
+    @Query('end_date') endDate?: string,
+    @Query('page') page?: string,
+    @Query('batch') batch?: string,
+    @Query('limit') limit?: string,
+  ): Promise<PaginatedResult<AssetIssueDocument>> {
+    return this.assetIssueService.findAll(
+      {
+        asset,
+        is_resolved: isResolved === 'true' ? true : isResolved === 'false' ? false : undefined,
+        issue_type: issueType,
+        start_date: startDate,
+        end_date: endDate,
+      },
+      page ?? batch,
+      limit,
+    );
+  }
+
+  @Get('issues/all')
+  @UseGuards(RolesGuard)
+  @Roles(UserType.ADMIN)
+  @ResponseMessage('Issues retrieved successfully')
+  async findAllIssuesWithoutPagination(
+    @Query('asset', ParseObjectIdPipe) asset?: string,
+    @Query('is_resolved') isResolved?: string,
+    @Query('issue_type') issueType?: string,
+    @Query('start_date') startDate?: string,
+    @Query('end_date') endDate?: string,
+  ): Promise<AssetIssueDocument[]> {
+    return this.assetIssueService.findAllWithoutPagination({
+      asset,
+      is_resolved: isResolved === 'true' ? true : isResolved === 'false' ? false : undefined,
+      issue_type: issueType,
+      start_date: startDate,
+      end_date: endDate,
+    });
+  }
+
+  @Get('issues/:id')
+  @UseGuards(RolesGuard)
+  @Roles(UserType.ADMIN)
+  @ResponseMessage('Issue retrieved successfully')
+  findIssue(@Param('id', ParseObjectIdPipe) id: string): Promise<AssetIssueDocument> {
+    return this.assetIssueService.findById(id);
+  }
+
+  @Patch('issues/:id/resolve')
+  @UseGuards(RolesGuard)
+  @Roles(UserType.ADMIN)
+  @ResponseMessage('Issue resolved successfully')
+  async resolveIssue(
+    @Param('id', ParseObjectIdPipe) id: string,
+    @CurrentUser() currentUser: AuthenticatedUser,
+    @Body() dto: ResolveIssueDto,
+  ): Promise<AssetIssueDocument> {
+    return this.assetIssueService.resolveIssue(id, currentUser.userId, dto);
   }
 }

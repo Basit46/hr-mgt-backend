@@ -19,7 +19,7 @@ import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/roles.guard';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { UserType } from '../../common/enums/user-type.enum';
-import { HistoryFilters, HistoryService, AdminRecordActivityInput } from './history.service';
+import { HistoryFilters, HistoryService, type AdminRecordActivityInput } from './history.service';
 import { AssetHistoryDocument } from './schemas/asset-history.schema';
 
 @Controller('admin/history')

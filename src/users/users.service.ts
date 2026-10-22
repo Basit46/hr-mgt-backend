@@ -198,4 +198,11 @@ export class UsersService {
       throw new NotFoundException(`User #${id} not found`);
     }
   }
+
+  async findFirstAdmin(): Promise<UserDocument | null> {
+    return this.userModel
+      .findOne({ user_type: UserType.ADMIN })
+      .sort({ createdAt: 1 })
+      .exec();
+  }
 }
