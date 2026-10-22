@@ -193,15 +193,15 @@ export class AssetsController {
     return this.assetIssueService.findById(id);
   }
 
-  @Patch('issues/:id/resolve')
+  @Patch(':id/resolve')
   @UseGuards(RolesGuard)
   @Roles(UserType.ADMIN)
-  @ResponseMessage('Issue resolved successfully')
-  async resolveIssue(
+  @ResponseMessage('All issues resolved successfully')
+  async resolveAllIssues(
     @Param('id', ParseObjectIdPipe) id: string,
     @CurrentUser() currentUser: AuthenticatedUser,
     @Body() dto: ResolveIssueDto,
-  ): Promise<AssetIssueDocument> {
-    return this.assetIssueService.resolveIssue(id, currentUser.userId, dto);
+  ): Promise<AssetIssueDocument[]> {
+    return this.assetIssueService.resolveAllIssuesForAsset(id, currentUser.userId, dto);
   }
 }

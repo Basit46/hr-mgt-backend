@@ -74,39 +74,41 @@ export class AssetIssueService {
     return issue.populate(ISSUE_POPULATE);
   }
 
-  async resolveIssue(
-    issueId: string,
+  async resolveAllIssuesForAsset(
+    assetId: string,
     adminId: string,
     dto: ResolveIssueDto,
-  ): Promise<AssetIssueDocument> {
-    const issue = await this.issueModel.findById(issueId).exec();
-
-    if (!issue) {
-      throw new NotFoundException(`Issue #${issueId} not found`);
-    }
-
-    if (issue.is_resolved) {
-      throw new BadRequestException('This issue is already resolved');
-    }
-
-    const asset = await this.assetModel.findById(issue.asset).exec();
+  ): Promise<AssetIssueDocument[]> {
+    const asset = await this.assetModel.findById(assetId).exec();
 
     if (!asset) {
-      throw new NotFoundException(`Asset #${issue.asset} not found`);
+      throw new NotFoundException(`Asset #${assetId} not found`);
     }
 
-    issue.is_resolved = true;
-    issue.resolution_note = dto.resolution_note;
-    issue.resolved_by = new Types.ObjectId(adminId);
-    issue.resolved_at = new Date();
-    await issue.save();
+    const openIssues = await this.issueModel
+      .find({ asset: assetId, is_resolved: false })
+      .exec();
+
+    if (openIssues.length === 0) {
+      throw new BadRequestException('This asset has no open issues to resolve');
+    }
+
+    const resolvedIssues = await Promise.all(
+      openIssues.map(async (issue) => {
+        issue.is_resolved = true;
+        issue.resolution_note = dto.resolution_note;
+        issue.resolved_by = new Types.ObjectId(adminId);
+        issue.resolved_at = new Date();
+        return issue.save();
+      }),
+    );
 
     asset.has_issue = false;
     asset.current_issue = undefined;
     await asset.save();
 
     await this.historyService.record({
-      asset: issue.asset.toString(),
+      asset: assetId,
       event_type: AssetActivityType.REPAIRED,
       quantity: 1,
       performed_by: adminId,
@@ -117,7 +119,10 @@ export class AssetIssueService {
       await this.sendRepairedEmail(employee, asset, dto.resolution_note);
     }
 
-    return issue.populate(ISSUE_POPULATE);
+    return this.issueModel
+      .find({ asset: assetId, is_resolved: true })
+      .populate(ISSUE_POPULATE)
+      .exec();
   }
 
   async findById(id: string): Promise<AssetIssueDocument> {
